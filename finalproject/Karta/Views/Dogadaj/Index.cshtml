@@ -1,0 +1,264 @@
+﻿@model Karta.ViewModels.DogadajViewModel
+@{
+    ViewData["Title"] = "Dogadaj";
+}
+
+
+<br />
+<h2>Popis događaja</h2>
+<br />
+<div> <a class="btn btn-outline-primary" role="button" asp-action="Create" asp-controller="Dogadaj">Create</a></div>
+<br />
+<pager page-info="@Model.PagingInfo" page-action="Index" page-title="Unesite željenu stranicu"
+       class="float-end">
+</pager>
+<table class="table table-sm table-striped table-hover" id="dogadaj">
+    <thead>
+        <tr>
+            <th><a asp-route-sort="1" asp-route-page="@Model.PagingInfo.CurrentPage" asp-route-ascending="@(Model.PagingInfo.Sort == 1 ? !Model.PagingInfo.Ascending : true)">ID DOGAĐAJA</a></th>
+            <th><a asp-route-sort="3" asp-route-page="@Model.PagingInfo.CurrentPage" asp-route-ascending="@(Model.PagingInfo.Sort == 1 ? !Model.PagingInfo.Ascending : true)">VRIJEME DOGAĐAJA</a></th>
+            <th><a asp-route-sort="2" asp-route-page="@Model.PagingInfo.CurrentPage" asp-route-ascending="@(Model.PagingInfo.Sort == 1 ? !Model.PagingInfo.Ascending : true)">DIONICA</a></th>
+            <th><a asp-route-sort="5" asp-route-page="@Model.PagingInfo.CurrentPage" asp-route-ascending="@(Model.PagingInfo.Sort == 1 ? !Model.PagingInfo.Ascending : true)">METEOROLOSKI UVJETI</a></th>
+            <th><a asp-route-sort="4" asp-route-page="@Model.PagingInfo.CurrentPage" asp-route-ascending="@(Model.PagingInfo.Sort == 1 ? !Model.PagingInfo.Ascending : true)">OPIS DOGAĐAJA</a></th>
+
+
+
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dogadaj in Model.Dogadaji)
+        {
+            <tr>
+                <td class="text-center">@dogadaj.IdDogadaj</td>
+                <td class="text-center">@dogadaj.VrijemeDogadaja</td>
+                <td class="text-center">@dogadaj.NazivDionica</td>
+                <td class="text-center">@dogadaj.MeteoroloskiUvjeti</td>
+                <td class="text-left">@dogadaj.OpisDogadaja</td>
+                <td class="btn-group">
+                    <form id="edit-form-@dogadaj.IdDogadaj" method="get"
+                    asp-action="Edit"
+                   asp-route-id="@dogadaj.IdDogadaj"
+                   asp-route-page="@Model.PagingInfo.CurrentPage"
+                   asp-route-sort="@Model.PagingInfo.Sort"
+                   asp-route-ascending="@Model.PagingInfo.Ascending">
+                    <input type="hidden" name="idDogadaj" value="@dogadaj.IdDogadaj" />
+                        <button type="button" class="btn btn-primary btn-sm" title="Ažuriraj" onclick="return confirmEdit(@dogadaj.IdDogadaj)"><i class="fas fa-edit"></i>Edit</button>
+                        </form>
+
+                    <form id="delete-form-@dogadaj.IdDogadaj" method="post"
+                      asp-action="Delete"
+                      asp-route-page="@Model.PagingInfo.CurrentPage"
+                      asp-route-sort="@Model.PagingInfo.Sort"
+                      asp-route-ascending="@Model.PagingInfo.Ascending">
+                        <input type="hidden" name="idDogadaj" value="@dogadaj.IdDogadaj" />
+                        <button type="button" class="btn btn-sm btn-danger delete" title="Obriši" onclick="return confirmDelete(@dogadaj.IdDogadaj)"><i class="fas fa-trash-alt"></i>Delete</button>
+                    </form>
+
+                    <style>
+                        #admin-credentials-@dogadaj.IdDogadaj {
+                            display: none;
+                            position: fixed;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            background-color: #fff;
+                            padding: 20px;
+                            border-radius: 5px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+                            z-index: 9999;
+                        }
+
+                            #admin-credentials-@dogadaj.IdDogadaj label {
+                                display: block;
+                                margin-bottom: 10px;
+                            }
+
+                            #admin-credentials-@dogadaj.IdDogadaj input[type=text],
+#admin-credentials-@dogadaj.IdDogadaj input[type=password]  {
+                                width: 100%;
+                                padding: 10px;
+                                border-radius: 5px;
+                                border: 1px solid #ccc;
+                                margin-bottom: 20px;
+                                font-size: 16px;
+                            }
+
+                            #admin-credentials-@dogadaj.IdDogadaj input[type=submit] {
+                                background-color: #dc3545;
+                                color: #fff;
+                                border: none;
+                                padding: 10px 20px;
+                                border-radius: 5px;
+                                cursor: pointer;
+                            }
+                    </style>
+
+                    <div id="admin-credentials-@dogadaj.IdDogadaj">
+                        <form id="admin-form-@dogadaj.IdDogadaj">
+                            <label for="admin-username">Username:</label>
+                            <input type="text" name="admin-username" id="admin-username-@dogadaj.IdDogadaj">
+
+                            <label for="admin-password">Password:</label>
+                            <input type="password" name="admin-password" id="admin-password-@dogadaj.IdDogadaj">
+
+                            <input type="submit" value="Submit" id="admin-submit-@dogadaj.IdDogadaj">
+                        </form>
+                    </div>
+
+                    <script>
+
+
+                        function confirmDelete(idDogadaj) {
+                            // prikaz za unos usernamea i pass
+                            var adminCredentials = document.getElementById("admin-credentials-" + idDogadaj);
+                            adminCredentials.style.display = "block";
+
+                            // event listener za tu formu
+                            var adminForm = document.getElementById("admin-form-" + idDogadaj);
+                            adminForm.addEventListener("submit", handleDeleteSubmit);
+
+                            function handleDeleteSubmit(event) {
+                                event.preventDefault();
+
+                                var adminUsername = document.getElementById("admin-username-" + idDogadaj).value;
+                                var adminPassword = document.getElementById("admin-password-" + idDogadaj).value;
+
+                                // Check username and password
+                                if (adminUsername === "adminTinaJuresko" && adminPassword === "C6kiTw+a53") {
+                                    var confirmMessage = "Are you sure you want to delete " + idDogadaj + "?";
+                                    if (window.confirm(confirmMessage)) {
+                                        // Submit the delete form
+                                        document.getElementById("delete-form-" + idDogadaj).submit();
+                                    }
+                                } else {
+                                    // Show error message
+                                    window.alert("Incorrect admin credentials!");
+                                }
+
+                                // Reset form fields
+                                adminForm.reset();
+
+                                // Hide input fields
+                                adminCredentials.style.display = "none";
+                            }
+                        }
+
+                        function confirmEdit(idDogadaj) {
+                          // prikaz za unos usernamea i pass
+                          var adminCredentials = document.getElementById("admin-credentials-" + idDogadaj);
+                          adminCredentials.style.display = "block";
+
+                          // Get the admin form elements
+                          var adminUsernameInput = document.getElementById("admin-username-" + idDogadaj);
+                          var adminPasswordInput = document.getElementById("admin-password-" + idDogadaj);
+                          var editForm = document.getElementById("edit-form-" + idDogadaj);
+
+                          //event listener za submit 
+                          var submitButton = document.getElementById("admin-submit-" + idDogadaj);
+                          submitButton.addEventListener("click", handleEditSubmit);
+
+                          function handleEditSubmit(event) {
+                            event.preventDefault();
+
+                            var adminUsername = adminUsernameInput.value;
+                            var adminPassword = adminPasswordInput.value;
+
+                            // Check username and password
+                            if (adminUsername === "adminTinaJuresko" && adminPassword === "C6kiTw+a53") {
+                              // Proceed with edit functionality ako odgovara unos
+                              document.getElementById("edit-form-" + idDogadaj).submit();
+                            } else {
+                              // Show error message
+                              window.alert("Incorrect admin credentials!");
+                            }
+
+                            // Reset form fields
+                            adminUsernameInput.value = "";
+                            adminPasswordInput.value = "";
+
+                            // Hide input fields
+                            adminCredentials.style.display = "none";
+
+                            // Remove the event listener
+                            submitButton.removeEventListener("click", handleEditSubmit);
+                          }
+                        }
+
+
+               
+
+
+
+                    </script>
+
+
+                </td>
+
+
+
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="text-center">
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            @if (Model.PagingInfo.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-page="1" asp-route-sort="@Model.PagingInfo.Sort" asp-route-ascending="@Model.PagingInfo.Ascending">First</a>
+                </li>
+
+            }
+
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PagingInfo.CurrentPage ? "active" : "")">
+                    <a class="page-link" asp-route-page="@i" asp-route-sort="@Model.PagingInfo.Sort" asp-route-ascending="@Model.PagingInfo.Ascending">@i</a>
+                </li>
+            }
+
+            @if (Model.PagingInfo.CurrentPage < Model.PagingInfo.TotalPages)
+            {
+
+                <li class="page-item">
+                    <a class="page-link" asp-route-page="@Model.PagingInfo.TotalPages" asp-route-sort="@Model.PagingInfo.Sort" asp-route-ascending="@Model.PagingInfo.Ascending">Last</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+
+
+@section styles{
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css" />
+}
+
+@section scripts{
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#tabledogadaj').DataTable({
+                language: {
+                    search: "Pretraga",
+                    info: "_START_ - _END_ (ukupno _TOTAL_)",
+                    lengthMenu: "Prikaži _MENU_ zapisa",
+                    paginate: {
+                        first: "Prva",
+                        previous: "Prethodna",
+                        next: "Sljedeća",
+                        last: "Zadnja"
+                    },
+                    emptyTable: "Nema podataka za prikaz",
+                    info: "_START_ - _END_ od ukupno _TOTAL_ zapisa",
+                    infoEmpty: "Nema podataka za prikaz",
+                    infoFiltered: "(filtrirano od ukupno _MAX_ zapisa)",
+                }
+            });
+        });
+    </script>
+}

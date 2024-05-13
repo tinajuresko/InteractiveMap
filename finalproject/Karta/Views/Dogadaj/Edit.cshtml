@@ -1,0 +1,55 @@
+﻿@*
+    
+*@
+@model Karta.Model.Dogadaj
+@{
+    ViewBag.Title = "Ažuriranje događaja";
+}
+<br />
+<h2>Uredi događaj</h2>
+<br />
+
+
+<form asp-route-id="@Model.IdDogadaj"
+      asp-route-page="@ViewBag.Page"
+      asp-route-sort="@ViewBag.Sort"
+      asp-route-ascending="@ViewBag.Ascending"
+      method="post">
+    <div asp-validation-summary="All"></div>
+
+    <div class="form-group">
+        <label asp-for="IdDogadaj"></label>
+        <div><span asp-validation-for="IdDogadaj" class="text-danger"></span></div>
+        <input asp-for="IdDogadaj" class="form-control" readonly />
+    </div>
+    <div class="form-group">
+        <label asp-for="VrijemeDogadaja"></label>
+        <div><span asp-validation-for="VrijemeDogadaja" class="text-danger"></span></div>
+        <textarea asp-for="VrijemeDogadaja" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <label asp-for="IdDionica"></label>
+        <div><span asp-validation-for="IdDionica" class="text-danger"></span></div>
+        <select class="form-control" asp-for="IdDionica" asp-items="ViewBag.Dionice">
+            <option disabled selected value="">Odaberite dionicu</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="MeteoroloskiUvjeti"></label>
+        <div><span asp-validation-for="MeteoroloskiUvjeti" class="text-danger"></span></div>
+        <input asp-for="MeteoroloskiUvjeti" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="OpisDogadaja"></label>
+        <div><span asp-validation-for="OpisDogadaja" class="text-danger"></span></div>
+        <input asp-for="OpisDogadaja" class="form-control" />
+    </div>
+    <div class="text-center">
+        <button class="btn btn-primary" type="submit">Spremi</button>
+        <a asp-action="Index"
+           asp-route-page="@ViewBag.Page"
+           asp-route-sort="@ViewBag.Sort"
+           asp-route-ascending="@ViewBag.Ascending"
+           class="btn btn-secondary">Odustani</a>
+    </div>
+</form>

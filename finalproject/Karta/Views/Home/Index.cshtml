@@ -1,0 +1,1043 @@
+﻿
+
+<!DOCTYPE html>
+<html style="height: 100%;">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Leaflet Map</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #mapid {
+            position: absolute;
+          top: 80px;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 100%;
+          margin-top: -30px;
+        }
+
+        .menu {
+            position: fixed;
+            top: 80px;
+            right: 10px;
+            width: 280px; 
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+        }
+
+        /* Checkbox styles */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            user-select: none;
+        }
+
+            
+            .checkbox-container input {
+                display: none;
+            }
+
+        
+        .checkmark {
+            position: relative;
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            border: 2px solid #41b883;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+            
+            .checkmark::after {
+                content: "";
+                position: absolute;
+                display: none;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background-color: #41b883;
+            }
+
+        
+        .checkbox-container input:checked + .checkmark::after {
+            display: block;
+        }
+
+       
+        .checkbox-container label {
+            cursor: pointer;
+        }
+
+        .scrollable {
+            height: 200px; 
+            overflow-y: auto; 
+        }
+
+        .naplatnaPostajaCheckbox {
+    display: none;
+}
+
+
+.naplatnaPostajaCheckbox + .checkmark {
+    border-color: #41b883;
+}
+
+
+.naplatnaPostajaCheckbox:checked + .checkmark::after {
+    display: block;
+    background-color: #41b883;
+}
+
+
+.expanded .naplatnaPostajaCheckbox {
+    display: inline-block;
+}
+
+       
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-top: 10px;
+        }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 26px;
+                width: 26px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                -webkit-transition: .4s;
+                transition: .4s;
+                border-radius: 50%;
+            }
+
+        input:checked + .slider {
+            background-color: forestgreen;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px forestgreen
+            ;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        
+
+
+    </style>
+</head>
+<body>
+    <div id="mapid"></div>
+    <div class="menu">
+        <h3>Odmorišta</h3>
+        <div class="checkbox-container">
+            <input type="checkbox" id="benzinskePostajeCheckbox" />
+            <span class="checkmark"></span>
+            <label for="benzinskePostajeCheckbox">
+                Benzinske Postaje
+            </label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="restoraniCheckbox" />
+            <span class="checkmark"></span>
+            <label for="restoraniCheckbox">
+                Restorani
+            </label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="igralistaCheckbox" />
+            <span class="checkmark"></span>
+            <label for="igralistaCheckbox">
+                Igrališta
+            </label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="trgovineCheckbox" />
+            <span class="checkmark"></span>
+            <label for="trgovineCheckbox">
+                Trgovine
+            </label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="punioniceCheckbox" />
+            <span class="checkmark"></span>
+            <label for="punioniceCheckbox">
+                Punionice za električna vozila
+            </label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="caffeCheckbox" />
+            <span class="checkmark"></span>
+            <label for="caffeCheckbox">
+                Caffe bar
+            </label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="spavanjeCheckbox" />
+            <span class="checkmark"></span>
+            <label for="spavanjeCheckbox">
+                Spavanje
+            </label>
+        </div>
+       <div class="checkbox-container">
+            <input type="checkbox" id="toaletCheckbox" />
+            <span class="checkmark"></span>
+            <label for="toaletCheckbox">
+                Toalet
+            </label>
+       </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="tusCheckbox" />
+            <span class="checkmark"></span>
+            <label for="tusCheckbox">Tuš
+        </label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="parkingCheckbox" />
+            <span class="checkmark"></span>
+            <label for="parkingCheckbox">
+                Parking
+            </label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="mjenjacnicaCheckbox" />
+            <span class="checkmark"></span>
+            <label for="mjenjacnicaCheckbox">
+                Mjenjačnica
+            </label>
+        </div>
+       <div class="checkbox-container">
+            <input type="checkbox" id="bankomatCheckbox" />
+            <span class="checkmark"></span>
+            <label for="bankomatCheckbox">
+                Bankomat
+            </label>
+       </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="autopraonicaCheckbox" />
+            <span class="checkmark"></span>
+            <label for="autopraonicaCheckbox">
+                Autopraonica
+            </label>
+        </div>
+       
+        <br />
+         <h3 class="switch-label">Prikaz stanja na autocesti</h3>
+        <div class="switch">
+          <input type="checkbox" id="markerSwitch" />
+          <label for="markerSwitch" class="slider"></label>
+         
+        </div>
+      
+        
+        
+        
+    </div>
+   
+    <script>
+        $(document).ready(function () {
+        var mymap = L.map('mapid');
+        var bounds = L.latLngBounds([[42.3, 13.5], [46.9, 19.5]]);
+        mymap.fitBounds(bounds);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution:
+                'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            tileSize: 512,
+            zoomOffset: -1,
+        }).addTo(mymap);
+
+        
+
+                    var markerSwitch = document.getElementById('markerSwitch');
+
+            // prazno poslje markera
+            var markers = [];
+
+            // event listener za switch
+            markerSwitch.addEventListener('change', function () {
+                if (this.checked) {
+                    // prikaz markera
+                    markers.forEach(function (marker) {
+                        mymap.addLayer(marker);
+                    });
+                } else {
+                    // uklanjanje markera
+                    markers.forEach(function (marker) {
+                        mymap.removeLayer(marker);
+                    });
+                }
+            });
+
+       
+
+            $.getJSON('@Url.Action("GetDogadajLocations", "Dogadaj")', function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    console.log(JSON.stringify(data));
+                    var latitude = data[i].latitude;
+                    var longitude = data[i].longitude;
+                    var vrijemedogadaja = data[i].vrijemedogadaja;
+                    var dionica = data[i].dionica;
+                    var meteoroloskiuvjeti = data[i].meteoroloskiuvjeti;
+                    var opis = data[i].opis;
+
+                    var redIcon = L.icon({
+                        iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    });
+
+                    var marker = L.marker([latitude, longitude], { icon: redIcon });//.addTo(mymap);
+
+                    //Popup dogadaja
+                    var popupContent = "<strong>Date/Time: </strong>" + vrijemedogadaja +
+                        "<br><strong>Section: </strong>" + dionica +
+                        "<br><strong>Weather Conditions: </strong>" + meteoroloskiuvjeti +
+                        "<br><strong>Description: </strong>" + opis;
+                    marker.bindPopup(popupContent);
+
+                    //zbog switcha
+                    markers.push(marker);
+                }
+
+                             if (markerSwitch.checked) {
+                    markers.forEach(function (marker) {
+                        mymap.addLayer(marker);
+                    });
+                }
+               
+            });
+
+            //BENZINSKE
+
+            $('#benzinskePostajeCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getBenzinskePostajeMarkers();
+                } else {
+                    // Checkbox je ponovno kliknut, treba maknuti markere
+                    removeBenzinskePostajeMarkers();
+                }
+            });
+            var gasStationIcon = L.icon({
+                iconUrl: 'Icons/gas.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+            
+            
+            function getBenzinskePostajeMarkers() {
+                $.getJSON('@Url.Action("GetBenzinskePostaje", "PrateciSadrzaj")', function (data) {
+                    
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+                        
+
+                        var marker = L.marker([latitude, longitude], { icon: gasStationIcon }).addTo(mymap);
+
+                        // popup za benzinske
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeBenzinskePostajeMarkers() {
+                
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === gasStationIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+            //TOALETI
+
+            $('#toaletCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getWcMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeWcMarkers();
+                }
+            });
+
+            var WcIcon = L.icon({
+                iconUrl: 'Icons/wc.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getWcMarkers() {
+                $.getJSON('@Url.Action("GetToalet", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: WcIcon }).addTo(mymap);
+
+                        // Popup za toalete
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeWcMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === WcIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+            //PARKING
+
+            $('#parkingCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getParkingMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeParkingMarkers();
+                }
+            });
+
+            var ParkingIcon = L.icon({
+                iconUrl: 'Icons/parking.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getParkingMarkers() {
+                $.getJSON('@Url.Action("GetParking", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: ParkingIcon }).addTo(mymap);
+
+                        // Popup za parkinge
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeParkingMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === ParkingIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+            //RESTORANI
+
+            $('#restoraniCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getRestoraniMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeRestoraniMarkers();
+                }
+            });
+
+            var RestoranIcon = L.icon({
+                iconUrl: 'Icons/restaurant.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getRestoraniMarkers() {
+                $.getJSON('@Url.Action("GetRestorane", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: RestoranIcon }).addTo(mymap);
+
+                        // Popup za restorane
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeRestoraniMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === RestoranIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+            //BANKOMAT
+
+            $('#bankomatCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getBankomatMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeBankomatMarkers();
+                }
+            });
+
+            var BankomatIcon = L.icon({
+                iconUrl: 'Icons/atm.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getBankomatMarkers() {
+                $.getJSON('@Url.Action("GetBankomat", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: BankomatIcon }).addTo(mymap);
+
+                        // Popup za bankomate
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeBankomatMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === BankomatIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+            //MIJENJACNICE
+
+            $('#mjenjacnicaCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getMjenjacniceMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeMjenjacniceMarkers();
+                }
+            });
+
+            var MjenjacnicaIcon = L.icon({
+                iconUrl: 'Icons/mjenjacnice.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getMjenjacniceMarkers() {
+                $.getJSON('@Url.Action("GetMjenjacnica", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: MjenjacnicaIcon }).addTo(mymap);
+
+                        // Popup za mjenjacnice
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeMjenjacniceMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === MjenjacnicaIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+               //SPAVANJE
+
+            $('#spavanjeCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getSpavanjeMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeSpavanjeMarkers();
+                }
+            });
+
+            var SpavanjeIcon = L.icon({
+                iconUrl: 'Icons/rooms.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getSpavanjeMarkers() {
+                $.getJSON('@Url.Action("GetSpavanje", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: SpavanjeIcon }).addTo(mymap);
+
+                        // Popup za spavanje
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeSpavanjeMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === SpavanjeIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+            //AUTOPRAONICE
+
+            $('#autopraonicaCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getAutopraoniceMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeAutopraoniceMarkers();
+                }
+            });
+
+            var AutoIcon = L.icon({
+                iconUrl: 'Icons/car.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getAutopraoniceMarkers() {
+                $.getJSON('@Url.Action("GetAutopraonica", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: AutoIcon }).addTo(mymap);
+
+                        // Popup za autopraoncie
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeAutopraoniceMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === AutoIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+              //IGRALISTA
+
+            $('#igralistaCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getIgralistaMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeIgralistaMarkers();
+                }
+            });
+
+            var IgralistaIcon = L.icon({
+                iconUrl: 'Icons/igralista.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getIgralistaMarkers() {
+                $.getJSON('@Url.Action("GetIgralista", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: IgralistaIcon }).addTo(mymap);
+
+                        // Popup za igralista
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeIgralistaMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === IgralistaIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+            //TRGOVINE
+
+            $('#trgovineCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getTrgovineMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeTrgovineMarkers();
+                }
+            });
+
+            var TrgovinaIcon = L.icon({
+                iconUrl: 'Icons/trgovina.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getTrgovineMarkers() {
+                $.getJSON('@Url.Action("GetTrgovine", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: TrgovinaIcon }).addTo(mymap);
+
+                        // Popup za trgovine
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeTrgovineMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === TrgovinaIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+            //PUNIONICE
+
+            $('#punioniceCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getPunioniceMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removePunioniceMarkers();
+                }
+            });
+
+            var PunionicaIcon = L.icon({
+                iconUrl: 'Icons/charging-station.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getPunioniceMarkers() {
+                $.getJSON('@Url.Action("GetPunionice", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: PunionicaIcon }).addTo(mymap);
+
+                        // Popup za punionice
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removePunioniceMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === PunionicaIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+             //CAFFE
+
+            $('#caffeCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getCaffeMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeCaffeMarkers();
+                }
+            });
+
+            var CaffeIcon = L.icon({
+                iconUrl: 'Icons/caffe.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getCaffeMarkers() {
+                $.getJSON('@Url.Action("GetCaffe", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: CaffeIcon }).addTo(mymap);
+
+                        // Popup za kafice
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeCaffeMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === CaffeIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+            //TUS
+
+            $('#tusCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Checkbox kliknuta, display markers
+                    getTusMarkers();
+                } else {
+                    // Checkbox ponovno kliknut, treba maknuti markere
+                    removeTusMarkers();
+                }
+            });
+
+            var TusIcon = L.icon({
+                iconUrl: 'Icons/shower.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            function getTusMarkers() {
+                $.getJSON('@Url.Action("GetTus", "PrateciSadrzaj")', function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data));
+                        var latitude = data[i].latitude;
+                        var longitude = data[i].longitude;
+                        var radnoOd = data[i].radnood;
+                        var radnoDo = data[i].radnodo;
+                        var ime = data[i].ime;
+
+
+
+                        var marker = L.marker([latitude, longitude], { icon: TusIcon }).addTo(mymap);
+
+                        // Popup za tuseve
+                        var popupContent = "<strong>Working Hours: </strong>" + radnoOd + " - " + radnoDo +
+                            "<br><strong>Name: </strong>" + ime;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
+
+            function removeTusMarkers() {
+
+                mymap.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker && layer.options.icon === TusIcon) {
+                        mymap.removeLayer(layer);
+                    }
+                });
+            }
+
+        });
+    </script>
+</body>
+</html>

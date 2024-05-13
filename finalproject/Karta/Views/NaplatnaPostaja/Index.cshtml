@@ -1,0 +1,203 @@
+﻿@model Karta.ViewModels.NaplatnePostajeViewModel
+
+@{
+    ViewBag.Title = "Naplatne postaje";
+}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+
+<!-- Leaflet JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js" ></script>
+<style>
+    /* Map container style */
+    #map {
+        float: left;
+    }
+
+    /* Checkbox style */
+    input[type="checkbox"] {
+        /* skrivanje default checkboxa */
+        display: none;
+    }
+
+    /* Checkbox label style */
+    .checkbox-label {
+        position: relative;
+        display: inline-block;
+        padding-left: 30px;
+        margin-bottom: 10px;
+        cursor: pointer;
+    }
+
+    /* Checkbox custom style */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background-color: #eee;
+        border-radius: 50%; /* Make the checkbox round */
+        border: 2px solid green; /* Green border */
+    }
+
+    /* Checkbox checked  */
+    .checkbox-label input:checked ~ .checkmark:after {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 8px;
+        height: 8px;
+        background-color: green; 
+        border-radius: 50%; 
+    }
+
+    
+    .checkbox-label:hover .checkmark {
+        background-color: #ccc;
+    }
+</style>
+    
+
+
+<div id="map" style="width: 1000px; height: 600px; float: left; margin-right: 20px; margin-bottom: 20px;"></div>
+
+<table class="table table-sm table-striped table-hover">
+    <thead>
+        <tr>
+            <th>
+                <a asp-route-sort="2" asp-route-page="@Model.PagingInfo.CurrentPage" >
+                    Naziv naplatne postaje
+                </a>
+            </th>
+            <th>
+                <a asp-route-sort="3" asp-route-page="@Model.PagingInfo.CurrentPage" >
+                    Naziv autoceste
+                </a>
+            </th>
+           <th>
+                <a asp-route-sort="8" asp-route-page="@Model.PagingInfo.CurrentPage" >
+                    Kontakt
+                </a>
+            </th>
+            
+            <th></th>
+    </thead>
+    <tbody>
+        @foreach (var prolazak in Model.NaplatnePostaje)
+        {
+            <tr>
+
+                
+                <td class="text-left">
+                    @prolazak.NazivNaplatnaPostaja
+                </td>
+                <td class="text-left">
+                    @prolazak.NazivAutocesta
+                </td>
+                <td class="text-left">
+                    @prolazak.Kontakt
+                </td>
+
+                    
+
+                <td class="text-center">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="@($"checkbox_{prolazak.IdNaplatnaPostaja}")" name="tollStation" value="@prolazak.IdNaplatnaPostaja">
+                        <span class="checkmark"></span>
+                       
+                    </label>
+                </td>
+
+                
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="text-center">
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            @if (Model.PagingInfo.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-page="1" asp-route-sort="@Model.PagingInfo.Sort" asp-route-ascending="@Model.PagingInfo.Ascending">First</a>
+                </li>
+
+            }
+
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PagingInfo.CurrentPage ? "active" : "")">
+                    <a class="page-link" asp-route-page="@i" asp-route-sort="@Model.PagingInfo.Sort" asp-route-ascending="@Model.PagingInfo.Ascending">@i</a>
+                </li>
+            }
+
+            @if (Model.PagingInfo.CurrentPage < Model.PagingInfo.TotalPages)
+            {
+
+                <li class="page-item">
+                    <a class="page-link" asp-route-page="@Model.PagingInfo.TotalPages" asp-route-sort="@Model.PagingInfo.Sort" asp-route-ascending="@Model.PagingInfo.Ascending">Last</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+<script>
+    // Inicijalizacija  Leaflet map
+    var map = L.map('map').setView([45.1, 15.2], 7);
+
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+    }).addTo(map);
+
+    //checkboxes
+    // zeleni marker
+    var blueIcon = L.icon({
+        iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    function getCheckedTollStations() {
+        var checkboxes = document.querySelectorAll('input[name="tollStation"]:checked');
+        var tollStationIds = Array.from(checkboxes).map(function (checkbox) {
+            return checkbox.value;
+        });
+
+        fetch('/NaplatnaPostaja/GetNaplatnaPostajaData?naplatnaPostajaIds=' + tollStationIds.join(','))
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(function (tollStation) {
+                    var marker = L.marker([tollStation.latitude, tollStation.longitude], { icon: blueIcon })
+                        .addTo(map)
+                        .bindPopup('<b>' + tollStation.autocesta + '</b><br>' + tollStation.kontakt);
+                });
+            });
+    }
+
+    
+
+    // kad su checkboxovi kliknuti neka se markeri pokazu
+    var checkboxes = document.querySelectorAll('input[name="tollStation"]');
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+            getCheckedTollStations();
+        });
+    });
+</script>
+@section scripts {
+    <script src="~/js/pager.js" asp-append-version="true"></script>
+}

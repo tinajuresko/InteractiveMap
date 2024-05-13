@@ -1,0 +1,121 @@
+﻿@*
+   
+*@
+@model Karta.Model.Dogadaj
+@{
+    ViewBag.Title = "Novi događaj";
+}
+<head>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css"
+          crossorigin="" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"
+            crossorigin=""></script>
+
+    <style>
+        #mapid {
+            height: 500px;
+            margin: 50px;
+        }
+    </style>
+</head>
+<br />
+<h2>Novi događaj</h2>
+<br />
+
+<form asp-action="Create" method="post"> 
+    <div asp-validation-summary="All"></div>
+
+    <div class="mb-3">
+        <label asp-for="VrijemeDogadaja" class="form-label"></label>
+        <input asp-for="VrijemeDogadaja" class="form-control" />
+        <div class="form-text"><span asp-validation-for="VrijemeDogadaja" class="text-danger"></span></div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="IdDionica" class="form-label"></label>
+        <div class="form-text"><span asp-validation-for="IdDionica" class="text-danger"></span></div>
+        <select class="form-control" asp-for="IdDionica" asp-items="ViewBag.Dionice">
+            <option disabled selected value="">Odaberite dionicu</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="MeteoroloskiUvjeti" class="form-label"></label>
+        <input asp-for="MeteoroloskiUvjeti" class="form-control" />
+        <div class="form-text"><span asp-validation-for="MeteoroloskiUvjeti" class="text-danger"></span></div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="OpisDogadaja" class="form-label"></label>
+        <input asp-for="OpisDogadaja" class="form-control" />
+        <div class="form-text"><span asp-validation-for="OpisDogadaja" class="text-danger"></span></div>
+    </div>
+
+    <input type="hidden" id="Coordinates" name="coordinates" />
+
+    <div class="text-center">
+        <button class="btn btn-primary" type="submit">Dodaj</button>
+        <a asp-action="Index" class="btn btn-secondary">Odustani</a>
+    </div>
+</form>
+
+
+<div id="mapid"></div>
+
+<script>
+    var map = L.map('mapid').setView([45.815399, 15.966568], 7); // inicijalizacija mape
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // dodaj marker kada user klikne na mapu
+    var marker;
+    map.on('click', function (e) {
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        marker = L.marker(e.latlng).addTo(map);
+        getMarkerCoords();
+    });
+
+    // procitaj koordinate s markera i zapisi ih u skriveni input
+    function getMarkerCoords() {
+        var lat = marker.getLatLng().lat;
+        var lng = marker.getLatLng().lng;
+        document.getElementById("Coordinates").value = lat + "," + lng;
+        //localStorage.setItem("userCoordinates", JSON.stringify({ lat: lat, lng: lng }));
+    }
+
+    // pitaj korisnika za dopustanje lokacije
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    // ako korisnik prihvaca lokaciju prikazuje se dio mape gdje se on nalazi
+    function showPosition(position) {
+        map.setView([position.coords.latitude, position.coords.longitude], 13);
+    }
+
+    
+    if (navigator.permissions) {
+        navigator.permissions.query({ name: 'geolocation' }).then(function (result) {
+            if (result.state === 'granted') {
+                getLocation();
+            } else if (result.state === 'prompt') {
+                navigator.geolocation.getCurrentPosition(showPosition, function () { }, { enableHighAccuracy: true });
+            }
+        });
+    } else if (navigator.geolocation) {
+        getLocation();
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+</script>
+
+
+@section scripts {
+    <partial name="IncludeValidation" />
+}

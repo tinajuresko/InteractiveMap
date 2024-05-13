@@ -1,0 +1,73 @@
+﻿@model Karta.ViewModels.OdmoristaViewModel
+@{
+    ViewBag.Title = "Odmorišta";
+}
+
+<h2>Odmorišta</h2>
+
+
+
+<table class="table table-sm table-striped table-hover">
+    <thead>
+        <tr>
+            <th>
+                <a asp-route-sort="1" asp-route-page="@Model.PagingInfo.CurrentPage" asp-route-ascending="@(Model.PagingInfo.Sort == 1 ? !Model.PagingInfo.Ascending : true)">
+                    Naziv odmorišta
+                </a>
+            </th>
+            <th>
+                <a asp-route-sort="2" asp-route-page="@Model.PagingInfo.CurrentPage" asp-route-ascending="@(Model.PagingInfo.Sort == 2 ? !Model.PagingInfo.Ascending : true)">
+                    Naziv autoceste
+                </a>
+            </th>
+            <th>
+                <a asp-route-sort="3" asp-route-page="@Model.PagingInfo.CurrentPage" asp-route-ascending="@(Model.PagingInfo.Sort == 3 ? !Model.PagingInfo.Ascending : true)">
+                    Smjer
+                </a>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var odmoriste in Model.Odmorista)
+        {
+            <tr>
+                <td class="text-left">@odmoriste.NazivOdmorista</td>
+                <td class="text-left">@odmoriste.NazivAutocesta</td>
+                <td class="text-left">@odmoriste.Smjer</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="text-center">
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            @if (Model.PagingInfo.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-page="1" asp-route-sort="@Model.PagingInfo.Sort" asp-route-ascending="@Model.PagingInfo.Ascending">First</a>
+                </li>
+                
+            }
+
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PagingInfo.CurrentPage ? "active" : "")">
+                    <a class="page-link" asp-route-page="@i" asp-route-sort="@Model.PagingInfo.Sort" asp-route-ascending="@Model.PagingInfo.Ascending">@i</a>
+                </li>
+            }
+
+            @if (Model.PagingInfo.CurrentPage < Model.PagingInfo.TotalPages)
+            {
+                
+                <li class="page-item">
+                    <a class="page-link" asp-route-page="@Model.PagingInfo.TotalPages" asp-route-sort="@Model.PagingInfo.Sort" asp-route-ascending="@Model.PagingInfo.Ascending">Last</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+
+@section scripts {
+    <script src="~/js/pager.js" asp-append-version="true"></script>
+}
